@@ -10,7 +10,7 @@ import fluke.waveswing.wfc.Tile;
 public class PaintCanvas extends JPanel 
 {
 	private static final long serialVersionUID = 1L;
-	public static int tileSize = 28;
+	public static int tileSize = 24;
 	public static int border = 4;
 	public static boolean setup = true;
 	
@@ -33,27 +33,28 @@ public class PaintCanvas extends JPanel
 	{
 		for(int n = 0; n < t.data.length; n++)
 		{
-			int subX = (tileSize/2) * (n%2);
-			int subY = (tileSize/2) * (n/2);
-			switch(t.data[n])
-			{
-				case 0:
-					g.setColor(Color.BLUE);
-					break;
-				case 1:
-					g.setColor(Color.RED);
-					break;
-				case 2:
-					g.setColor(Color.CYAN);
-					break;
-				case 3:
-					g.setColor(Color.GREEN);
-					break;
-				case 9:
-					g.setColor(Color.BLACK);
-				default:
-			}
-			g.fillRect(x+subX, y+subY, tileSize/2, tileSize/2);
+			int subX = (tileSize/3) * (n%3);
+			int subY = (tileSize/3) * (n/3);
+			g.setColor(new Color(t.data[n]));
+//			switch(t.data[n])
+//			{
+//				case 0:
+//					g.setColor(Color.BLUE);
+//					break;
+//				case 1:
+//					g.setColor(Color.RED);
+//					break;
+//				case 2:
+//					g.setColor(Color.CYAN);
+//					break;
+//				case 3:
+//					g.setColor(Color.GREEN);
+//					break;
+//				case 9:
+//					g.setColor(Color.BLACK);
+//				default:
+//			}
+			g.fillRect(x+subX, y+subY, tileSize/3, tileSize/3);
 		}
 
 	}
@@ -63,8 +64,7 @@ public class PaintCanvas extends JPanel
 		for(int n = 0; n < Main.tileset.tiles.length; n++)
 		{
 			Tile t = Main.tileset.tiles[n];
-			int tilesPerLine = Gui.canvasWidth = (tileSize*Main.mapTileSize+border*4) / (tileSize*4);
-			//int tilesPerLine = 4;
+			int tilesPerLine = (Gui.canvasWidth - (tileSize*Main.mapTileSize+border*4)) / (tileSize*3);
 			int x = tileSize*Main.mapTileSize+border*4+tileSize*3*(n%tilesPerLine);
 			int y = border+tileSize*2*(n/tilesPerLine);
 			drawTile(g, t, x, y);

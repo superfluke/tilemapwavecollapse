@@ -5,9 +5,30 @@ import java.util.Random;
 
 public class Tile
 {
-	public static boolean nerfVoidTile = false;
 	private static Random rand = new Random();
 	public static int numColors = 2;
+
+	public int[] data = {
+			rand.nextInt(numColors), rand.nextInt(numColors), rand.nextInt(numColors), 
+			rand.nextInt(numColors), rand.nextInt(numColors), rand.nextInt(numColors), 
+			rand.nextInt(numColors), rand.nextInt(numColors), rand.nextInt(numColors)};
+	public int weight = rand.nextInt(6)+5;
+	
+	public Tile()
+	{
+	}
+	
+	public Tile(int[] data)
+	{
+		this.data = data;
+	}
+	
+	public Tile(int[] data, int weight)
+	{
+		this.data = data;
+		this.weight = weight;
+	}
+	
 	@Override
 	public int hashCode()
 	{
@@ -27,22 +48,6 @@ public class Tile
 		if (!Arrays.equals(data, other.data))
 			return false;
 		return true;
-	}
-
-	public int[] data = {rand.nextInt(numColors), rand.nextInt(numColors), rand.nextInt(numColors), rand.nextInt(numColors)};
-	public int weight = rand.nextInt(6)+5;
-	
-	public Tile()
-	{
-		if(nerfVoidTile)
-			if(this.equals(Map.voidTile))
-				this.weight = 1;
-	}
-	
-	public Tile(int[] data, int weight)
-	{
-		this.data = data;
-		this.weight = weight;
 	}
 	
 }

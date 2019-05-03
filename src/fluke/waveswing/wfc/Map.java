@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Stack;
 
+import fluke.waveswing.Gui;
 import fluke.waveswing.Main;
 
 public class Map
@@ -15,8 +16,8 @@ public class Map
 	public TileSet tileset;
 	public int size;
 	public static Random rand = new Random();
-	public static Tile voidTile = new Tile(new int[] {0,0,0,0}, 0);
-	public static Tile fullTile = new Tile(new int[] {1,1,1,1}, 9);
+	public static Tile voidTile = new Tile(new int[] {0,0,0,0,0,0,0,0,0}, 0);
+	public static Tile fullTile = new Tile(new int[] {1,1,1,1,1,1,1,1,1}, 9);
 	
 	public enum Dir
 	{
@@ -48,7 +49,7 @@ public class Map
 //		voidEdges();
 //		forceSetTile(5, 5, fullTile);
 //		forceSetTile(8, 8, fullTile);
-		setRandomTiles(4);
+		setRandomTiles(5);
 	}
 	
 	//add tile to set if it doesn't already exist
@@ -64,6 +65,7 @@ public class Map
 		}
 	}
 	
+	//ensures numTiles unique locations are set. Does not pick tiles 2 or less to the edge of map
 	public void setRandomTiles(int numTiles)
 	{
 		HashSet<int[]> cords = new HashSet<int[]>();
@@ -81,22 +83,11 @@ public class Map
 		}
 	}
 	
+	//selects tile based on weight, adjusting the probabilities at that location
 	public void setTile(int x, int y)
 	{
 		Tile t = tileProbs[x][y].getWeightedTile(true);
 		map[x][y] = t;
-	}
-	
-	public void initRandomMap()
-	{
-		for(int x = 0; x < size; x++)
-		{
-			for(int y = 0; y < size; y++)
-			{
-				Tile t = tileset.tiles[rand.nextInt(tileset.tiles.length)];
-				map[x][y] = t;
-			}
-		}
 	}
 	
 	public boolean allTilesSet()
@@ -159,6 +150,9 @@ public class Map
 			for(Dir d : validDirs)
 			{
 				int[] otherCords = new int[] {currentCords[0] + d.cords[0], currentCords[1] + d.cords[1]};
+				if(isTileSet(otherCords))
+					continue;
+				
 				Tile[] otherPossibleTiles = getTiles(otherCords);
 				for(Tile otherTile : otherPossibleTiles)
 				{
@@ -175,7 +169,28 @@ public class Map
 					if(!isPlaceable)
 					{
 						tileProbs[otherCords[0]][otherCords[1]].invalidateTile(otherTile);
-						cords.add(otherCords); //TODO check we are not adding same cords multiple times
+						if(!cords.contains(otherCords))
+							cords.add(otherCords); 
+					}
+				}
+			}
+			
+			for(int x = 0; x < size; x++)
+			{
+				for(int y = 0; y < size; y++)
+				{	
+					boolean fuck = true;
+					for(int prob : tileProbs[x][y].probs)
+					{
+						if(prob != 0)
+							fuck = false;
+					}
+					if(fuck)
+					{
+						System.out.println("tile probabilities are in a bad state. sorry");
+						Gui.giveTheFuckUp = true;
+						Gui.reset = true;
+						return;
 					}
 				}
 			}
@@ -189,13 +204,13 @@ public class Map
 		switch(d)
 		{
 			case NORTH:
-				return t1.data[0] == t2.data[2] && t1.data[1] == t2.data[3];
+				return t1.data[0] == t2.data[6] && t1.data[1] == t2.data[7] && t1.data[2] == t2.data[8];
 			case EAST:
-				return t1.data[1] == t2.data[0] && t1.data[3] == t2.data[2];
+				return t1.data[2] == t2.data[0] && t1.data[5] == t2.data[3] && t1.data[8] == t2.data[6];
 			case SOUTH:
-				return t1.data[2] == t2.data[0] && t1.data[3] == t2.data[1];
+				return t1.data[6] == t2.data[0] && t1.data[7] == t2.data[1] && t1.data[8] == t2.data[2];
 			case WEST:
-				return t1.data[0] == t2.data[1] && t1.data[2] == t2.data[3];
+				return t1.data[0] == t2.data[2] && t1.data[3] == t2.data[5] && t1.data[6] == t2.data[8];
 			default:
 				return false;
 		}
@@ -280,6 +295,11 @@ public class Map
 		map[x][y] = t;
 		tileProbs[x][y].validateTile(t);
 		propagateChange(x, y);
+	}
+	
+	public boolean isTileSet(int[] cords)
+	{
+		return map[cords[0]][cords[1]] != null;
 	}
 
 }

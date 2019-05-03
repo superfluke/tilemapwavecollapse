@@ -22,10 +22,11 @@ import fluke.waveswing.wfc.TileSet;
 
 public class Gui  implements MouseListener 
 {
-	public static int canvasWidth = 800;
+	public static int canvasWidth = 1000;
 	public static int canvasHeight = 600;
 	public static boolean reset = false;
 	public static boolean runSlow = false;
+	public static boolean giveTheFuckUp = false;
 	
 	public Gui() throws InterruptedException
 	{
@@ -41,11 +42,11 @@ public class Gui  implements MouseListener
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.X_AXIS));
 		JButton bReset = new JButton("Restart");
-		JButton b2 = new JButton("hi");
+		JButton bStop = new JButton("Stop");
 		JCheckBox slowCheck = new JCheckBox("Slow Down");
 		buttonPane.add(bReset);
 		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
-		buttonPane.add(b2);
+		buttonPane.add(bStop);
 		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
 		buttonPane.add(slowCheck);
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 20, 10));
@@ -66,7 +67,18 @@ public class Gui  implements MouseListener
 			@Override
 			public void actionPerformed(ActionEvent arg0) 
 			{
+				//will restart new run when current one is finished
 				reset = true;			
+			}          
+		});
+		
+		bStop.addActionListener(new ActionListener() 
+		{ 
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				//end current run
+				giveTheFuckUp = true;			
 			}          
 		});
 		
@@ -74,34 +86,33 @@ public class Gui  implements MouseListener
 		{
 			public void itemStateChanged(ItemEvent e)
 			{
+				//adds delay in between placing tiles
 				runSlow = e.getStateChange() == 1 ? true : false;
 			}
 		});
-		
-		//wfc.initRandomMap();
-		//wfc.collapseMap();
+
 		for(;;)
 		{
 			if(reset)
 			{
-				Main.tileset = new TileSet(Main.tileSetAttempts);
-				Main.wfc = new Map(Main.mapTileSize, Main.tileset);
+				Main.reset();
 				reset = false;
+				giveTheFuckUp = false;
 			}
 			
-			while(!Main.wfc.allTilesSet()) 
+			while(!Main.wfc.allTilesSet() && !giveTheFuckUp) 
 			{
 				if(runSlow)
-					Thread.sleep(30);
+					Thread.sleep(10);
 				
 				if(Main.wfc.collapseNext())
 				{
 					painter.repaint();
 				}
-				else
+				else //no tile was possible at location, try again
 				{
 					reset = true;
-					break;
+					giveTheFuckUp = true;
 				}
 			}
 			Thread.sleep(100);
