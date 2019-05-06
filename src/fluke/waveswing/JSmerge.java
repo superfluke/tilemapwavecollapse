@@ -1,6 +1,7 @@
 package fluke.waveswing;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -19,13 +20,17 @@ public class JSmerge
 		ScriptEngineManager manager = new ScriptEngineManager();
 		ScriptEngine engine = manager.getEngineByName("JavaScript");
 		// read script file
+		
+		InputStreamReader reader = new InputStreamReader(JSmerge.class.getResourceAsStream("bobmerge.txt"));
 		try
 		{
-			engine.eval(Files.newBufferedReader(Paths.get("bobmerge.txt"), StandardCharsets.UTF_8));
-		} catch (ScriptException | IOException e)
+			engine.eval(reader);
+		} catch (ScriptException e1)
 		{
-			e.printStackTrace();
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
+		
 
 		Invocable inv = (Invocable) engine;
 		// call function from script file
