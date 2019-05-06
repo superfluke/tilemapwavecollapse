@@ -13,11 +13,10 @@ public class Map
 {
 	public Tile[][] map;
 	public TileProbability[][] tileProbs;
-	public TileSet tileset;
 	public int size;
 	public static Random rand = new Random();
-	public static Tile voidTile = new Tile(new int[] {0,0,0,0,0,0,0,0,0}, 0);
-	public static Tile fullTile = new Tile(new int[] {1,1,1,1,1,1,1,1,1}, 9);
+	public static Tile voidTile = new Tile(new int[] {0xFF000000,0xFF000000,0xFF000000,0xFF000000,0xFF000000,0xFF000000,0xFF000000,0xFF000000,0xFF000000}, 0);
+	public static Tile fullTile = new Tile(new int[] {0xFF553311,0xFF553311,0xFF553311,0xFF553311,0xFF553311,0xFF553311,0xFF553311,0xFF553311,0xFF553311}, 250);
 	
 	public enum Dir
 	{
@@ -33,7 +32,7 @@ public class Map
 		}
 	}
 	
-	public Map(int size, TileSet tileset)
+	public Map(int size)
 	{
 //		addTileToSet(voidTile);
 //		addTileToSet(fullTile);
@@ -44,12 +43,11 @@ public class Map
 				tileProbs[x][y] = new TileProbability();
 			
 		this.size = size;
-		this.tileset = tileset;
 		
 //		voidEdges();
 //		forceSetTile(5, 5, fullTile);
 //		forceSetTile(8, 8, fullTile);
-		setRandomTiles(5);
+		setRandomTiles(4);
 	}
 	
 	//add tile to set if it doesn't already exist
@@ -57,10 +55,10 @@ public class Map
 	{
 		if(!Arrays.asList(Main.tileset.tiles).contains(t))
 		{
-			Tile[] newset = new Tile[Main.tileSetSize+1];
-			System.arraycopy(Main.tileset.tiles, 0, newset, 0, Main.tileSetSize);
-			newset[Main.tileSetSize] = t;
-			Main.tileSetSize++;
+			int tileSetSize = Main.tileset.tiles.length;
+			Tile[] newset = new Tile[tileSetSize+1];
+			System.arraycopy(Main.tileset.tiles, 0, newset, 0, tileSetSize);
+			newset[tileSetSize] = t;
 			Main.tileset.tiles = newset;
 		}
 	}
@@ -70,7 +68,7 @@ public class Map
 	{
 		HashSet<int[]> cords = new HashSet<int[]>();
 		
-		while(cords.size() < numTiles-1)
+		while(cords.size() < numTiles)
 		{
 			int[] newCord = new int[] {rand.nextInt(Main.mapTileSize-4)+2, rand.nextInt(Main.mapTileSize-4)+2};
 			cords.add(newCord);

@@ -1,0 +1,111 @@
+function isValidJson(json)
+{
+    try {
+        JSON.parse(json);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+
+function MergeVox(mapString)
+{
+	if(isValidJson(mapString))
+    {
+		var mapJSON=JSON.parse(mapString);
+		var objs=mapJSON.objects;
+    }    
+    else
+    {
+    	document.write("you didn't enter an object");
+		return;
+    }
+    
+	if(objs.length<2)
+    {
+    	document.write("nothing to merge");
+    	return;
+    }
+    
+    var mergeorder = 0;
+    var orders=[[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+    nbmerge=0;
+    var mergeables=[];
+    
+    for(var i=0;i<objs.length;i++)
+    {
+    	//Thanks to techy for most of this line
+     	
+        mergeables.push(JSON.parse(JSON.stringify(objs[i])));
+        objs.splice(i,1);
+        i--;
+    }
+    
+    for(var iaxis=0;iaxis<3;iaxis++)
+    {
+    	var c0=orders[mergeorder][iaxis];
+    	var c1=orders[mergeorder][(iaxis+1)%3];
+        var c2=orders[mergeorder][(iaxis+2)%3];
+		for(var i=0;i<mergeables.length-1;i++)
+    	{
+			for(var j=i+1;j<mergeables.length;j++)        	
+           	{
+            	var mi=mergeables[i];
+                var mj=mergeables[j];
+                var cmi=c0%2?mi.p[c0]+mi.s[c0]/2:mi.p[c0];//center of mass
+                var cmj=c0%2?mj.p[c0]+mj.s[c0]/2:mj.p[c0];
+                
+                if(
+                mj.s[c1]==mi.s[c1]&&
+            	mj.s[c2]==mi.s[c2]&&
+            	mj.p[c1]==mi.p[c1]&&
+            	mj.p[c2]==mi.p[c2]&&
+                Math.abs(cmj-cmi)==Math.abs(mj.s[c0]/2+mi.s[c0]/2)&&
+                mj.c==mi.c&&
+                mj.e==mi.e&&
+                mj.o==mi.o&&
+                mj.t==mi.t&&
+                mj.col==mi.col&&
+                mj.pe==mi.pe&&
+                mj.hp==mi.hp&&
+                mj.v==mi.v
+                )
+                {
+                	var new_sx=Math.abs(cmj-cmi)+
+                    Math.abs(mj.s[c0]/2+mi.s[c0]/2);
+                    var new_px=(cmj*mj.s[c0]+mi.s[c0]*cmi)/(mj.s[c0]+mi.s[c0]);
+                    
+                    if(c0==1)
+                    	new_px=Math.min(mi.p[c0],mj.p[c0]);
+                        
+                    mergeables[i].p[c0]=new_px;
+                    mergeables[i].s[c0]=new_sx;
+                    mergeables.splice(j,1); 
+                    nbmerge++;
+                    j--;
+                }                
+            }
+        }
+    }
+    if(!nbmerge)
+    {
+   		document.write("Nothing merged");
+        return;
+    }
+    else
+    {    	
+    	for(c=0;c<mergeables.length;c++) 
+    		for(c1=0;c1<3;c1++)
+    			if(mergeables[c].p[c1]%1)
+        		{
+                	mergeables[c].p[c1]-=mergeables[c].s[c1]/4;
+                    mergeables[c].s[c1]/=2;
+                    mergeables.push(JSON.parse(JSON.stringify(mergeables[c]))); 
+                    mergeables[mergeables.length-1].p[c1]+=mergeables[mergeables.length-1].s[c1];
+                }
+        for(var obj in mergeables)
+        	objs.push(mergeables[obj]);
+    }
+    return JSON.stringify(mapJSON);      
+}

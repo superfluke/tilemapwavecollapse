@@ -8,14 +8,13 @@ public class Main
 	
 	
 	public static int tileSetAttempts = 14;
-	public static int tileSetSize;
 	public static int mapTileSize = 16;
-	public static TileSet tileset;
+	public static TileSet tileset = new TileSet();
 	public static Map wfc; 
 
 	static
 	{
-		reset();
+		reset("tileset.png");
 	}
 	
 	public static void main(String[] args) throws InterruptedException 
@@ -23,13 +22,13 @@ public class Main
 		new Gui();
 	}
 	
-	public static void reset()
+	public static void reset(String tilesetName)
 	{
-		tileset = new TileSet();
-		tileset.loadFromFile("tileset.png");
-//		tileset.addRandomTiles(tileSetAttempts);
-//		tileset.finalizeSet();
-		wfc = new Map(mapTileSize, tileset);
+		if(!tileset.isCurrentTileset(tilesetName))
+		{
+			tileset.loadFromFile(tilesetName);
+		}
+		wfc = new Map(mapTileSize);
 	}
 
 
